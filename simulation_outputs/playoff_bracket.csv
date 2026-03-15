@@ -1,0 +1,92 @@
+CONFERENCE,ROUND,GAME_NUMBER,HOME_TEAM,AWAY_TEAM,WINNER,HOME_WIN_PROB,SERIES_SCORE
+East,Conference Quarterfinals,1,Detroit Pistons,Philadelphia 76ers,Detroit Pistons,0.6350052356719971,1-0
+East,Conference Quarterfinals,2,Detroit Pistons,Philadelphia 76ers,Detroit Pistons,0.645155131816864,2-0
+East,Conference Quarterfinals,3,Philadelphia 76ers,Detroit Pistons,Detroit Pistons,0.45685991644859314,3-0
+East,Conference Quarterfinals,4,Philadelphia 76ers,Detroit Pistons,Detroit Pistons,0.44326961040496826,4-0
+East,Conference Quarterfinals,1,New York Knicks,Atlanta Hawks,New York Knicks,0.5499433279037476,1-0
+East,Conference Quarterfinals,2,New York Knicks,Atlanta Hawks,New York Knicks,0.5453152656555176,2-0
+East,Conference Quarterfinals,3,Atlanta Hawks,New York Knicks,Atlanta Hawks,0.5444759130477905,2-1
+East,Conference Quarterfinals,4,Atlanta Hawks,New York Knicks,New York Knicks,0.5573940277099609,3-1
+East,Conference Quarterfinals,5,New York Knicks,Atlanta Hawks,New York Knicks,0.5541236996650696,4-1
+East,Conference Quarterfinals,1,Boston Celtics,Toronto Raptors,Boston Celtics,0.6348450779914856,1-0
+East,Conference Quarterfinals,2,Boston Celtics,Toronto Raptors,Boston Celtics,0.6118095517158508,2-0
+East,Conference Quarterfinals,3,Toronto Raptors,Boston Celtics,Boston Celtics,0.4010949730873108,3-0
+East,Conference Quarterfinals,4,Toronto Raptors,Boston Celtics,Boston Celtics,0.39842790365219116,4-0
+East,Conference Quarterfinals,1,Cleveland Cavaliers,Orlando Magic,Cleveland Cavaliers,0.5604330897331238,1-0
+East,Conference Quarterfinals,2,Cleveland Cavaliers,Orlando Magic,Orlando Magic,0.5816289186477661,1-1
+East,Conference Quarterfinals,3,Orlando Magic,Cleveland Cavaliers,Cleveland Cavaliers,0.5092459917068481,2-1
+East,Conference Quarterfinals,4,Orlando Magic,Cleveland Cavaliers,Cleveland Cavaliers,0.5358150005340576,3-1
+East,Conference Quarterfinals,5,Cleveland Cavaliers,Orlando Magic,Orlando Magic,0.5759883522987366,3-2
+East,Conference Quarterfinals,6,Orlando Magic,Cleveland Cavaliers,Orlando Magic,0.5017503499984741,3-3
+East,Conference Quarterfinals,7,Cleveland Cavaliers,Orlando Magic,Orlando Magic,0.5633413791656494,3-4
+East,Conference Semifinals,1,Detroit Pistons,New York Knicks,New York Knicks,0.5854635834693909,0-1
+East,Conference Semifinals,2,Detroit Pistons,New York Knicks,New York Knicks,0.5991095900535583,0-2
+East,Conference Semifinals,3,New York Knicks,Detroit Pistons,New York Knicks,0.5658673644065857,0-3
+East,Conference Semifinals,4,New York Knicks,Detroit Pistons,Detroit Pistons,0.5367196798324585,1-3
+East,Conference Semifinals,5,Detroit Pistons,New York Knicks,Detroit Pistons,0.5762166976928711,2-3
+East,Conference Semifinals,6,New York Knicks,Detroit Pistons,New York Knicks,0.5762323141098022,2-4
+East,Conference Semifinals,1,Boston Celtics,Orlando Magic,Boston Celtics,0.6209397315979004,1-0
+East,Conference Semifinals,2,Boston Celtics,Orlando Magic,Boston Celtics,0.6118066310882568,2-0
+East,Conference Semifinals,3,Orlando Magic,Boston Celtics,Boston Celtics,0.47153767943382263,3-0
+East,Conference Semifinals,4,Orlando Magic,Boston Celtics,Orlando Magic,0.4719330072402954,3-1
+East,Conference Semifinals,5,Boston Celtics,Orlando Magic,Orlando Magic,0.6250783205032349,3-2
+East,Conference Semifinals,6,Orlando Magic,Boston Celtics,Orlando Magic,0.48667585849761963,3-3
+East,Conference Semifinals,7,Boston Celtics,Orlando Magic,Boston Celtics,0.5811865925788879,4-3
+East,Conference Finals,1,Boston Celtics,New York Knicks,Boston Celtics,0.5384724140167236,1-0
+East,Conference Finals,2,Boston Celtics,New York Knicks,New York Knicks,0.5706673264503479,1-1
+East,Conference Finals,3,New York Knicks,Boston Celtics,New York Knicks,0.5546379089355469,1-2
+East,Conference Finals,4,New York Knicks,Boston Celtics,New York Knicks,0.5588095784187317,1-3
+East,Conference Finals,5,Boston Celtics,New York Knicks,Boston Celtics,0.5869655609130859,2-3
+East,Conference Finals,6,New York Knicks,Boston Celtics,New York Knicks,0.5663179159164429,2-4
+West,Conference Quarterfinals,1,Oklahoma City Thunder,Golden State Warriors,Oklahoma City Thunder,0.7163811326026917,1-0
+West,Conference Quarterfinals,2,Oklahoma City Thunder,Golden State Warriors,Golden State Warriors,0.724839448928833,1-1
+West,Conference Quarterfinals,3,Golden State Warriors,Oklahoma City Thunder,Oklahoma City Thunder,0.4104045331478119,2-1
+West,Conference Quarterfinals,4,Golden State Warriors,Oklahoma City Thunder,Oklahoma City Thunder,0.3961232900619507,3-1
+West,Conference Quarterfinals,5,Oklahoma City Thunder,Golden State Warriors,Golden State Warriors,0.7246615290641785,3-2
+West,Conference Quarterfinals,6,Golden State Warriors,Oklahoma City Thunder,Oklahoma City Thunder,0.4007452428340912,4-2
+West,Conference Quarterfinals,1,Houston Rockets,Minnesota Timberwolves,Houston Rockets,0.5716150999069214,1-0
+West,Conference Quarterfinals,2,Houston Rockets,Minnesota Timberwolves,Houston Rockets,0.5460715293884277,2-0
+West,Conference Quarterfinals,3,Minnesota Timberwolves,Houston Rockets,Minnesota Timberwolves,0.5364090204238892,2-1
+West,Conference Quarterfinals,4,Minnesota Timberwolves,Houston Rockets,Minnesota Timberwolves,0.5451174378395081,2-2
+West,Conference Quarterfinals,5,Houston Rockets,Minnesota Timberwolves,Houston Rockets,0.5741704702377319,3-2
+West,Conference Quarterfinals,6,Minnesota Timberwolves,Houston Rockets,Minnesota Timberwolves,0.5427871942520142,3-3
+West,Conference Quarterfinals,7,Houston Rockets,Minnesota Timberwolves,Houston Rockets,0.5712813138961792,4-3
+West,Conference Quarterfinals,1,San Antonio Spurs,Phoenix Suns,Phoenix Suns,0.6426310539245605,0-1
+West,Conference Quarterfinals,2,San Antonio Spurs,Phoenix Suns,Phoenix Suns,0.6361429691314697,0-2
+West,Conference Quarterfinals,3,Phoenix Suns,San Antonio Spurs,Phoenix Suns,0.4727743864059448,0-3
+West,Conference Quarterfinals,4,Phoenix Suns,San Antonio Spurs,San Antonio Spurs,0.4984283447265625,1-3
+West,Conference Quarterfinals,5,San Antonio Spurs,Phoenix Suns,San Antonio Spurs,0.6380452513694763,2-3
+West,Conference Quarterfinals,6,Phoenix Suns,San Antonio Spurs,Phoenix Suns,0.45118677616119385,2-4
+West,Conference Quarterfinals,1,Denver Nuggets,Los Angeles Lakers,Los Angeles Lakers,0.5757318735122681,0-1
+West,Conference Quarterfinals,2,Denver Nuggets,Los Angeles Lakers,Los Angeles Lakers,0.5750528573989868,0-2
+West,Conference Quarterfinals,3,Los Angeles Lakers,Denver Nuggets,Denver Nuggets,0.5262500643730164,1-2
+West,Conference Quarterfinals,4,Los Angeles Lakers,Denver Nuggets,Los Angeles Lakers,0.5319643020629883,1-3
+West,Conference Quarterfinals,5,Denver Nuggets,Los Angeles Lakers,Denver Nuggets,0.559949517250061,2-3
+West,Conference Quarterfinals,6,Los Angeles Lakers,Denver Nuggets,Denver Nuggets,0.5536669492721558,3-3
+West,Conference Quarterfinals,7,Denver Nuggets,Los Angeles Lakers,Denver Nuggets,0.5540314316749573,4-3
+West,Conference Semifinals,1,Oklahoma City Thunder,Houston Rockets,Oklahoma City Thunder,0.6618571877479553,1-0
+West,Conference Semifinals,2,Oklahoma City Thunder,Houston Rockets,Oklahoma City Thunder,0.6785647869110107,2-0
+West,Conference Semifinals,3,Houston Rockets,Oklahoma City Thunder,Houston Rockets,0.4152555763721466,2-1
+West,Conference Semifinals,4,Houston Rockets,Oklahoma City Thunder,Oklahoma City Thunder,0.4110511243343353,3-1
+West,Conference Semifinals,5,Oklahoma City Thunder,Houston Rockets,Houston Rockets,0.6735294461250305,3-2
+West,Conference Semifinals,6,Houston Rockets,Oklahoma City Thunder,Oklahoma City Thunder,0.4411468207836151,4-2
+West,Conference Semifinals,1,Denver Nuggets,Phoenix Suns,Denver Nuggets,0.5528942942619324,1-0
+West,Conference Semifinals,2,Denver Nuggets,Phoenix Suns,Phoenix Suns,0.5406892895698547,1-1
+West,Conference Semifinals,3,Phoenix Suns,Denver Nuggets,Phoenix Suns,0.5742114782333374,1-2
+West,Conference Semifinals,4,Phoenix Suns,Denver Nuggets,Denver Nuggets,0.5581183433532715,2-2
+West,Conference Semifinals,5,Denver Nuggets,Phoenix Suns,Denver Nuggets,0.5635024309158325,3-2
+West,Conference Semifinals,6,Phoenix Suns,Denver Nuggets,Denver Nuggets,0.5590093731880188,4-2
+West,Conference Finals,1,Oklahoma City Thunder,Denver Nuggets,Denver Nuggets,0.6971405744552612,0-1
+West,Conference Finals,2,Oklahoma City Thunder,Denver Nuggets,Denver Nuggets,0.6980872750282288,0-2
+West,Conference Finals,3,Denver Nuggets,Oklahoma City Thunder,Denver Nuggets,0.444468230009079,0-3
+West,Conference Finals,4,Denver Nuggets,Oklahoma City Thunder,Oklahoma City Thunder,0.439727783203125,1-3
+West,Conference Finals,5,Oklahoma City Thunder,Denver Nuggets,Oklahoma City Thunder,0.5700857639312744,2-3
+West,Conference Finals,6,Denver Nuggets,Oklahoma City Thunder,Oklahoma City Thunder,0.4389355480670929,3-3
+West,Conference Finals,7,Oklahoma City Thunder,Denver Nuggets,Oklahoma City Thunder,0.6216936707496643,4-3
+NBA,Finals,1,Oklahoma City Thunder,New York Knicks,Oklahoma City Thunder,0.5855735540390015,1-0
+NBA,Finals,2,Oklahoma City Thunder,New York Knicks,New York Knicks,0.6176546216011047,1-1
+NBA,Finals,3,New York Knicks,Oklahoma City Thunder,New York Knicks,0.46128135919570923,1-2
+NBA,Finals,4,New York Knicks,Oklahoma City Thunder,Oklahoma City Thunder,0.46847259998321533,2-2
+NBA,Finals,5,Oklahoma City Thunder,New York Knicks,New York Knicks,0.5968388915061951,2-3
+NBA,Finals,6,New York Knicks,Oklahoma City Thunder,Oklahoma City Thunder,0.454611212015152,3-3
+NBA,Finals,7,Oklahoma City Thunder,New York Knicks,Oklahoma City Thunder,0.5836068987846375,4-3
