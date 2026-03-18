@@ -5,7 +5,11 @@ __pycache__/
 .DS_Store
 
 outputs/
+.pytest_cache/
+.venv/
+venv/
 
 # Descomenta si prefieres no subir artefactos generados
 # data/dataset_ml.csv
+# data/player_stats_reference.csv
 # models/nba_model.pkl

@@ -18,12 +18,14 @@ def run_step(script_name: str, label: str) -> None:
 def main() -> None:
     print("Actualizacion diaria del proyecto NBA")
     print("1. Regenerar dataset")
-    print("2. Reentrenar modelo")
-    print("3. Generar predicciones de las proximas 24 horas")
+    print("2. Actualizar lesiones")
+    print("3. Reentrenar modelo")
+    print("4. Generar predicciones de las proximas 24 horas")
 
     run_step("build_dataset.py", "Paso 1")
-    run_step("train_model.py", "Paso 2")
-    run_step("predict_next_24h.py", "Paso 3")
+    run_step("update_injuries.py", "Paso 2")
+    run_step("train_model.py", "Paso 3")
+    run_step("predict_next_24h.py", "Paso 4")
 
     print("\nProceso completado.")
 

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NBA Predictions Dashboard</title>
+  <style>
+    :root {
+      --card: #fffdf9;
+      --ink: #1f1b16;
+      --muted: #71675c;
+      --line: #ddd1c2;
+      --accent: #b7482b;
+      --accent-soft: #f3dbcf;
+      --good: #2f7d4a;
+      --bad: #a13d2d;
+    }
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: linear-gradient(180deg, #f8f2e8 0%, #eee3d2 100%);
+      color: var(--ink);
+    }
+    .wrap {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+    .hero, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 12px 28px rgba(58, 37, 14, 0.08);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+      background: radial-gradient(circle at top left, #fff8ef, #f2e3d2);
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 40px;
+      line-height: 1;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    select, button {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--ink);
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      padding: 20px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .summary-box {
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #f8efe4;
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
+    .match {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+    .match:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .title {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .bar {
+      height: 12px;
+      background: #ecdfd2;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 12px;
+    }
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d56b3b, var(--accent));
+    }
+    .meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .result {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fcf6ee;
+      font-size: 14px;
+    }
+    .hit {
+      color: var(--good);
+      font-weight: 700;
+    }
+    .miss {
+      color: var(--bad);
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-top: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      border-top: 0;
+      color: var(--muted);
+    }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    @media (max-width: 920px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .hero h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>NBA Predictions Dashboard</h1>
+      <p>Consulta predicciones por dia y compara con resultados reales cuando el partido ya se ha jugado.</p>
+      <form class="controls" method="get">
+        <label for="day">Dia:</label>
+        <select id="day" name="day">
+          {% for option in day_options %}
+            <option value="{{ option.value }}" {% if option.value == selected_day %}selected{% endif %}>{{ option.label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Ver jornada</button>
+      </form>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Predicciones del {{ selected_day_label }}</h2>
+
+        {% if predictions %}
+          <div class="summary">
+            <div class="summary-box">Partidos: {{ total_games }}</div>
+            {% if is_historical %}
+              <div class="summary-box">Aciertos: {{ hits }}/{{ total_games }}</div>
+              <div class="summary-box">Accuracy: {{ "%.1f"|format(hit_rate * 100) }}%</div>
+            {% else %}
+              <div class="summary-box">Modo previo al partido</div>
+            {% endif %}
+          </div>
+
+          {% for game in predictions %}
+            <article class="match">
+              <div class="title">{{ game.AWAY_TEAM }} @ {{ game.HOME_TEAM }}</div>
+              <div class="sub">{{ game.DATE }} | <span class="pill">{{ game.FAVORITE }} {{ "%.1f"|format(game.FAVORITE_WIN_PROB * 100) }}%</span></div>
+              <div>Probabilidad final local: {{ "%.1f"|format(game.HOME_WIN_PROB * 100) }}%</div>
+              <div class="bar"><div class="fill" style="width: {{ game.HOME_WIN_PROB * 100 }}%"></div></div>
+              <div class="meta">
+                <span>Base local: {{ "%.1f"|format(game.BASE_HOME_WIN_PROB * 100) }}%</span>
+                <span>Lesiones local: {{ game.HOME_INJURY_SCORE }}</span>
+                <span>Lesiones visitante: {{ game.AWAY_INJURY_SCORE }}</span>
+                <span>Min fuera local: {{ game.HOME_MINUTES_OUT }}</span>
+                <span>Min fuera visitante: {{ game.AWAY_MINUTES_OUT }}</span>
+              </div>
+
+              {% if game.ACTUAL_WINNER %}
+                <div class="result">
+                  Resultado real: <strong>{{ game.ACTUAL_WINNER }}</strong> |
+                  {% if game.PREDICTION_HIT %}
+                    <span class="hit">Prediccion acertada</span>
+                  {% else %}
+                    <span class="miss">Prediccion fallada</span>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </article>
+          {% endfor %}
+        {% else %}
+          <p class="empty">No hay partidos disponibles para ese dia.</p>
+        {% endif %}
+      </section>
+
+      <aside class="card">
+        <h2>Aciertos recientes</h2>
+        {% if recent_accuracy %}
+          <ul>
+            {% for item in recent_accuracy %}
+              <li>
+                {{ item.date_label }}:
+                {{ item.hits }}/{{ item.total_games }}
+                ({{ "%.1f"|format(item.accuracy * 100) }}%)
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="empty">No hay jornadas historicas evaluables todavia.</p>
+        {% endif %}
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top: 20px;">
+      <h2>Lesiones activas</h2>
+      {% if injuries %}
+        <table>
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>Jugador</th>
+              <th>Estado</th>
+              <th>Min</th>
+              <th>Pts</th>
+              <th>Titular</th>
+              <th>Vuelta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in injuries %}
+              <tr>
+                <td>{{ row.TEAM }}</td>
+                <td>{{ row.PLAYER }}</td>
+                <td>{{ row.STATUS }}</td>
+                <td>{{ row.MINUTES_PER_GAME }}</td>
+                <td>{{ row.POINTS_PER_GAME }}</td>
+                <td>{{ row.IS_STARTER }}</td>
+                <td>{{ row.RETURN_ESTIMATE }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">No hay lesiones cargadas.</p>
+      {% endif %}
+    </section>
+  </div>
+</body>
+</html>
