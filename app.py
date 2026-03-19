@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+import subprocess
+import sys
 
 from flask import Flask, render_template, request
 import pandas as pd
@@ -9,6 +12,7 @@ from scripts.predict_next_24h import generate_predictions_for_date, get_availabl
 PROJECT_ROOT = Path(__file__).resolve().parent
 INJURIES_PATH = PROJECT_ROOT / "data" / "injuries_current.csv"
 DAILY_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "daily_predictions"
+DAILY_UPDATE_PATH = PROJECT_ROOT / "scripts" / "daily_update.py"
 
 app = Flask(__name__)
 
@@ -97,6 +101,13 @@ def resolve_selected_day(day_options: list[dict]) -> pd.Timestamp:
     return pd.Timestamp(day_options[-1]["value"]).normalize()
 
 
+def run_daily_update() -> None:
+    if not DAILY_UPDATE_PATH.exists():
+        raise FileNotFoundError(f"No se encontro el script de actualizacion: {DAILY_UPDATE_PATH}")
+
+    subprocess.run([sys.executable, str(DAILY_UPDATE_PATH)], cwd=PROJECT_ROOT, check=True)
+
+
 @app.route("/")
 def index():
     day_options = build_day_options()
@@ -105,12 +116,19 @@ def index():
     injuries_df = load_injuries_table()
     recent_accuracy = build_recent_accuracy_summary()
     selected_day_label = selected_day.strftime("%d/%m/%Y")
-    is_historical = "ACTUAL_WINNER" in predictions_df.columns and predictions_df["ACTUAL_WINNER"].astype(str).str.len().gt(0).any()
+    resolved_mask = (
+        predictions_df["ACTUAL_WINNER"].astype(str).str.len().gt(0)
+        if "ACTUAL_WINNER" in predictions_df.columns
+        else pd.Series(dtype=bool)
+    )
+    resolved_games = int(resolved_mask.sum()) if not resolved_mask.empty else 0
+    is_historical = resolved_games > 0
 
     if is_historical:
-        hits = int(predictions_df["PREDICTION_HIT"].fillna(0).astype(int).sum())
+        evaluated_df = predictions_df[resolved_mask].copy()
+        hits = int(evaluated_df["PREDICTION_HIT"].fillna(0).astype(int).sum())
         total_games = len(predictions_df)
-        hit_rate = round(hits / total_games, 4) if total_games else None
+        hit_rate = round(hits / resolved_games, 4) if resolved_games else None
     else:
         hits = None
         total_games = len(predictions_df)
@@ -125,6 +143,7 @@ def index():
         selected_day=selected_day.strftime("%Y-%m-%d"),
         selected_day_label=selected_day_label,
         is_historical=is_historical,
+        resolved_games=resolved_games,
         hits=hits,
         total_games=total_games,
         hit_rate=hit_rate,
@@ -132,4 +151,11 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug_mode = True
+    should_run_update = not debug_mode or os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+    if should_run_update:
+        try:
+            run_daily_update()
+        except Exception as exc:
+            print(f"[WARN] daily_update fallo al iniciar la app: {exc}")
+    app.run(debug=debug_mode)

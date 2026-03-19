@@ -213,7 +213,10 @@
           <div class="summary">
             <div class="summary-box">Partidos: {{ total_games }}</div>
             {% if is_historical %}
-              <div class="summary-box">Aciertos: {{ hits }}/{{ total_games }}</div>
+              <div class="summary-box">Aciertos: {{ hits }}/{{ resolved_games }}</div>
+              {% if resolved_games < total_games %}
+                <div class="summary-box">Finalizados: {{ resolved_games }}/{{ total_games }}</div>
+              {% endif %}
               <div class="summary-box">Accuracy: {{ "%.1f"|format(hit_rate * 100) }}%</div>
             {% else %}
               <div class="summary-box">Modo previo al partido</div>

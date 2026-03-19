@@ -121,6 +121,12 @@ Puedes abrir una interfaz visual con Flask:
 python app.py
 ```
 
+Al iniciar la aplicacion:
+
+- intenta ejecutar `scripts/daily_update.py` para refrescar dataset, lesiones, modelo y predicciones
+- si la actualizacion falla, Flask sigue arrancando y muestra un aviso por consola
+- el servidor queda accesible solo en `localhost`
+
 Y luego visitar:
 
 ```text
@@ -130,6 +136,7 @@ http://127.0.0.1:5000
 La interfaz muestra:
 
 - selector de dia por jornada
+- calendario adaptado a horario de Espana (`Europe/Madrid`)
 - prediccion de los partidos del dia elegido
 - comparacion con resultado real en dias pasados
 - accuracy diaria cuando ya existen resultados

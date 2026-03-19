@@ -8,6 +8,7 @@ from typing import Deque, Dict, List, Optional, Tuple
 import joblib
 import pandas as pd
 import requests
+from zoneinfo import ZoneInfo
 
 try:
     from scripts.build_dataset import (
@@ -52,12 +53,154 @@ ACTIVE_INJURY_STATUSES = {"Out", "Doubtful", "Questionable"}
 QUESTIONABLE_WEIGHT = 0.35
 DOUBTFUL_WEIGHT = 0.75
 OUT_WEIGHT = 1.0
+APP_TIMEZONE = ZoneInfo("Europe/Madrid")
 
 
 @dataclass
 class PredictionContext:
     states: Dict[str, TeamState]
     head_to_head: defaultdict[Tuple[str, str], Deque[Tuple[str, int]]]
+
+
+def normalize_schedule_timestamp(value: pd.Timestamp) -> pd.Timestamp:
+    timestamp = pd.Timestamp(value)
+    if timestamp.tzinfo is not None:
+        return timestamp.tz_convert(APP_TIMEZONE).tz_localize(None).normalize()
+    return timestamp.normalize()
+
+
+def parse_schedule_game_date(game: dict, date_block: Optional[dict] = None) -> pd.Timestamp:
+    date_block = date_block or {}
+
+    for raw_value in (
+        game.get("gameDateTimeUTC"),
+        game.get("gameDateUTC"),
+        date_block.get("gameDateTimeUTC"),
+        date_block.get("gameDateUTC"),
+    ):
+        if not raw_value:
+            continue
+        parsed = pd.to_datetime(raw_value, errors="coerce", utc=True)
+        if pd.isna(parsed):
+            continue
+        return normalize_schedule_timestamp(parsed)
+
+    for raw_value in (
+        game.get("gameDateTimeEst"),
+        game.get("gameDateEst"),
+        game.get("gameDate"),
+        date_block.get("gameDateEst"),
+        date_block.get("gameDate"),
+    ):
+        if not raw_value:
+            continue
+        parsed = pd.to_datetime(raw_value, errors="coerce")
+        if pd.isna(parsed):
+            continue
+        return normalize_schedule_timestamp(parsed)
+
+    return pd.NaT
+
+
+def safe_team_score(team_payload: dict) -> Optional[int]:
+    score = team_payload.get("score")
+    if score in (None, ""):
+        return None
+    try:
+        return int(score)
+    except (TypeError, ValueError):
+        return None
+
+
+def extract_schedule_rows(
+    payload: dict,
+    season: str,
+    start_date: Optional[pd.Timestamp] = None,
+) -> List[dict]:
+    rows: List[dict] = []
+    seen = set()
+    normalized_start_date = start_date.normalize() if start_date is not None else None
+
+    for date_block in payload.get("leagueSchedule", {}).get("gameDates", []):
+        for game in date_block.get("games", []):
+            season_year = str(game.get("seasonYear", "")).strip()
+            if season_year and season_year != season:
+                continue
+
+            game_date = parse_schedule_game_date(game, date_block)
+            if pd.isna(game_date):
+                continue
+            if normalized_start_date is not None and game_date < normalized_start_date:
+                continue
+
+            home_team = normalize_schedule_team_name(game.get("homeTeam", {}))
+            away_team = normalize_schedule_team_name(game.get("awayTeam", {}))
+            if not home_team or not away_team:
+                continue
+
+            game_key = (game_date.date().isoformat(), home_team, away_team)
+            if game_key in seen:
+                continue
+            seen.add(game_key)
+
+            home_score = safe_team_score(game.get("homeTeam", {}))
+            away_score = safe_team_score(game.get("awayTeam", {}))
+            actual_winner = ""
+            if home_score is not None and away_score is not None and home_score != away_score:
+                actual_winner = home_team if home_score > away_score else away_team
+
+            rows.append(
+                {
+                    "DATE": game_date,
+                    "SEASON": season,
+                    "HOME_TEAM": home_team,
+                    "AWAY_TEAM": away_team,
+                    "GAME_STATUS": int(game.get("gameStatus", 0) or 0),
+                    "GAME_STATUS_TEXT": str(game.get("gameStatusText", "")).strip(),
+                    "HOME_SCORE": home_score,
+                    "AWAY_SCORE": away_score,
+                    "ACTUAL_WINNER": actual_winner,
+                }
+            )
+
+    return rows
+
+
+def load_schedule_snapshot(season: str, start_date: Optional[pd.Timestamp] = None) -> pd.DataFrame:
+    payload = None
+    last_error = None
+    for url in SCHEDULE_URLS:
+        try:
+            response = requests.get(url, timeout=15)
+            response.raise_for_status()
+            payload = response.json()
+            break
+        except requests.exceptions.RequestException as exc:
+            last_error = exc
+
+    if payload is None:
+        raise FileNotFoundError(
+            "No se pudo cargar el calendario restante. "
+            "Usa remaining_schedule.csv con columnas DATE, HOME_TEAM, AWAY_TEAM, SEASON."
+        ) from last_error
+
+    rows = extract_schedule_rows(payload, season, start_date=start_date)
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "DATE",
+                "SEASON",
+                "HOME_TEAM",
+                "AWAY_TEAM",
+                "GAME_STATUS",
+                "GAME_STATUS_TEXT",
+                "HOME_SCORE",
+                "AWAY_SCORE",
+                "ACTUAL_WINNER",
+            ]
+        )
+
+    return pd.DataFrame(rows).sort_values(["DATE", "HOME_TEAM", "AWAY_TEAM"]).reset_index(drop=True)
 
 
 def load_games_dataset() -> pd.DataFrame:
@@ -185,74 +328,15 @@ def load_remaining_schedule(season: str, start_date: pd.Timestamp) -> pd.DataFra
             schedule["SEASON"] = season
         schedule = schedule[schedule["SEASON"] == season].copy()
         return schedule.sort_values(["DATE", "HOME_TEAM", "AWAY_TEAM"]).reset_index(drop=True)
-
-    payload = None
-    last_error = None
-    for url in SCHEDULE_URLS:
-        try:
-            response = requests.get(url, timeout=15)
-            response.raise_for_status()
-            payload = response.json()
-            break
-        except requests.exceptions.RequestException as exc:
-            last_error = exc
-
-    if payload is None:
-        raise FileNotFoundError(
-            "No se pudo cargar el calendario restante. "
-            "Usa remaining_schedule.csv con columnas DATE, HOME_TEAM, AWAY_TEAM, SEASON."
-        ) from last_error
-
-    rows: List[dict] = []
-    seen = set()
-    for date_block in payload.get("leagueSchedule", {}).get("gameDates", []):
-        for game in date_block.get("games", []):
-            season_year = str(game.get("seasonYear", "")).strip()
-            if season_year and season_year != season:
-                continue
-
-            game_date_str = game.get("gameDate") or game.get("gameDateUTC") or date_block.get("gameDate")
-            if not game_date_str:
-                continue
-
-            game_date = pd.to_datetime(game_date_str, errors="coerce")
-            if pd.isna(game_date):
-                continue
-            game_date = pd.Timestamp(game_date)
-            if game_date.tzinfo is not None:
-                game_date = game_date.tz_convert(None)
-            game_date = game_date.normalize()
-
-            if game_date < start_date.normalize():
-                continue
-
-            status_text = str(game.get("gameStatusText", "")).lower()
-            if "final" in status_text or "postponed" in status_text:
-                continue
-
-            home_team = normalize_schedule_team_name(game.get("homeTeam", {}))
-            away_team = normalize_schedule_team_name(game.get("awayTeam", {}))
-            if not home_team or not away_team:
-                continue
-
-            game_key = (game_date.date().isoformat(), home_team, away_team)
-            if game_key in seen:
-                continue
-
-            seen.add(game_key)
-            rows.append(
-                {
-                    "DATE": game_date,
-                    "SEASON": season,
-                    "HOME_TEAM": home_team,
-                    "AWAY_TEAM": away_team,
-                }
-            )
-
-    if not rows:
+    schedule_snapshot = load_schedule_snapshot(season, start_date)
+    if schedule_snapshot.empty:
         raise FileNotFoundError("No se encontraron partidos futuros. Usa remaining_schedule.csv.")
-
-    return pd.DataFrame(rows).sort_values(["DATE", "HOME_TEAM", "AWAY_TEAM"]).reset_index(drop=True)
+    active_schedule = schedule_snapshot[
+        ~schedule_snapshot["GAME_STATUS_TEXT"].str.lower().str.contains("final|postponed", na=False)
+    ][["DATE", "SEASON", "HOME_TEAM", "AWAY_TEAM"]].copy()
+    if active_schedule.empty:
+        raise FileNotFoundError("No se encontraron partidos futuros. Usa remaining_schedule.csv.")
+    return active_schedule.sort_values(["DATE", "HOME_TEAM", "AWAY_TEAM"]).reset_index(drop=True)
 
 
 def add_window_features(row: dict, prefix: str, state: TeamState) -> None:
@@ -492,10 +576,11 @@ def build_future_predictions_for_date(
 ) -> pd.DataFrame:
     games = load_games_dataset()
     context, latest_played_date = build_current_context(season, games)
-    schedule = load_remaining_schedule(season, latest_played_date)
+    schedule = load_schedule_snapshot(season, latest_played_date)
     injuries_summary = load_injuries_summary()
 
     next_games = schedule[schedule["DATE"] == target_date.normalize()].copy()
+    next_games = next_games[~next_games["GAME_STATUS_TEXT"].str.lower().str.contains("postponed", na=False)].copy()
     next_games = next_games.sort_values(["DATE", "HOME_TEAM", "AWAY_TEAM"]).reset_index(drop=True)
     if next_games.empty:
         return pd.DataFrame()
@@ -517,8 +602,10 @@ def build_future_predictions_for_date(
         prediction["AWAY_INJURY_SCORE"] = round(away_injuries["INJURY_SCORE"], 4)
         prediction["HOME_MINUTES_OUT"] = round(home_injuries["MINUTES_OUT"], 2)
         prediction["AWAY_MINUTES_OUT"] = round(away_injuries["MINUTES_OUT"], 2)
-        prediction["ACTUAL_WINNER"] = ""
-        prediction["PREDICTION_HIT"] = ""
+        actual_winner = str(game.get("ACTUAL_WINNER", "") or "")
+        is_final = "final" in str(game.get("GAME_STATUS_TEXT", "")).lower()
+        prediction["ACTUAL_WINNER"] = actual_winner if is_final else ""
+        prediction["PREDICTION_HIT"] = int(prediction["FAVORITE"] == actual_winner) if actual_winner and is_final else ""
         prediction_rows.append(prediction)
 
     return pd.DataFrame(prediction_rows)
@@ -547,7 +634,7 @@ def get_available_prediction_dates(season: str = TARGET_SEASON) -> List[pd.Times
 
     try:
         latest_played_date = pd.Timestamp(games.loc[games["SEASON"] == season, "DATE"].max()).normalize()
-        schedule = load_remaining_schedule(season, latest_played_date)
+        schedule = load_schedule_snapshot(season, latest_played_date)
         dates.update(pd.Timestamp(value).normalize() for value in schedule["DATE"].tolist())
     except Exception:
         pass
